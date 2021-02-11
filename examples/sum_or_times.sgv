@@ -1,0 +1,25 @@
+-- Example demonstrating choice and selection, with a client sending two numbers to a server, and choosing whether they should be added or multiplied
+
+let arith_server :: ((?(Int * Int) . ?(() + ()) . !Int . End? ) -@ ()) = (
+  lambda client_channel :: (?(Int * Int) . ?(() + ()) . !Int . End? ) . (
+    let nums :: (Int * Int), client_channel :: (?(() + ()) . !Int . End?) = recieve client_channel in
+    let x :: Int, y :: Int = nums in
+    let choice :: (() + ()), client_channel :: (!Int . End?) = recieve client_channel in
+    case choice of {
+         inl plus_choice :: () |-> (
+             (dispose plus_choice)
+             let client_channel :: End? = send (plus x y) client_channel in
+             (wait client_channel));
+         inr times_choice :: () |-> (
+             (dispose times_choice)
+             let client_channel :: End? = send (times x y) client_channel in
+             (wait client_channel))}))
+in
+let arith_client :: ((!(Int * Int) . !(() + ()) . ?Int . End!) -@ End!) = (
+  lambda server_channel :: (!(Int * Int) . !(() + ()) . ?Int . End!) . (
+    let server_channel :: (!(() + ()) . ?Int . End!) = send (2, 3) server_channel in
+    let server_channel :: (?Int . End!) = send (inl ()) server_channel in
+    let result :: Int, server_closed :: End! = recieve server_channel in
+    (print result) server_closed))
+in
+arith_server (fork arith_client);

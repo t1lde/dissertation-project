@@ -1,0 +1,26 @@
+-- Simple example showing a client sending a pair of numbers to a server, which adds them and sends back the result
+-- Adapted from A Semantics for Propositions as Sessions
+
+let sum_server :: ((?(Int * Int) . !Int . End?) -@ ()) =
+    (
+    lambda client_channel :: (?(Int * Int) . !Int . End?) .
+           (
+           let nums :: (Int * Int), client_channel :: (!Int . End?) = recieve client_channel in
+           let x :: Int, y :: Int = nums in
+           let client_channel :: End? = send (plus x y) client_channel in
+           (wait client_channel)
+           )
+    )
+in
+let sum_client :: ((!(Int * Int) . ?Int . End!) -@ End!) =
+    (
+    lambda server_channel :: (!(Int * Int) . ?Int . End!) .
+           (
+           let server_channel :: (?Int . End!) = send (3, 4) server_channel in
+           let result :: Int, server_channel_closed :: End! = recieve server_channel in
+           (print result) server_channel_closed
+           )
+    )
+in
+
+sum_server (fork sum_client);

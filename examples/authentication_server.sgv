@@ -1,0 +1,44 @@
+
+let client :: (!(String * String) . ?((?String . End!) + End!) . End?) -@ End! =
+(
+    lambda serv_chan :: (!(String * String) . ?((?String . End!) + End!) . End?) .
+    let serv_chan :: (?((?String . End!) + End!) . End?) = (print "Client sending credentials to sever") (send ("Username123", "Password1234") serv_chan) in
+    let serv_choice :: ((?String . End!) + End!), serv_chan :: End? = recieve serv_chan in
+    (dispose ((print "Client offering choice to the server, recieving session channel for either authentication or rejection") (wait serv_chan) ))
+    (
+    case serv_choice of {
+         inl authenticated :: (?String . End!) |-> (print "Client recieved authentication session channel from server") (
+             let content :: String, closed :: End! = (recieve authenticated) in
+             (print (concat "Client recieved content from server:\n\t" content))
+             closed
+         );
+         inr rejected :: End! |-> (print "Client recieved rejection session channel from server") (
+             rejected
+         )
+    }
+    )
+)
+in
+let server :: ((?(String * String) . !((?String . End!) + (End!)) . End!)) -@ End? =
+(
+  lambda cli_chan :: (?(String * String) . !((?String . End!) + (End!)) . End!) .
+    (
+      let credentials :: (String * String), cli_chan :: (!((?String . End!) + (End!)) . End!) = ( (print "Server recieving credentials from client") (recieve cli_chan)) in
+        (
+        (
+          let username :: String, password :: String = credentials in
+          (
+          print (concat "Server recieved credentials from the user.\n\t" (concat (concat "Username: " (concat username "\n\t")) (concat "Password: " (concat password " "))))
+          )
+        )
+        ( (
+          lambda cli_chan :: (!String . End?).
+                 (
+                  (dispose (wait (send ((print "Server sending content to the client.") "TOP SECRET CONTENT") cli_chan)))
+                 )
+        ) fork (lambda content_chan :: (?String . End!) . (send ((inl content_chan)) cli_chan)))
+        )
+    )
+)
+in
+server (fork client);

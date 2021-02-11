@@ -1,0 +1,93 @@
+name:                GV
+version:             0.1.0.0
+author:              "Tilde Rose"
+maintainer:          "t1lde@protonmail.com"
+copyright:           "2019 Tilde Rose"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Werror=incomplete-record-updates
+- -Werror=incomplete-uni-patterns
+- -Werror=incomplete-patterns
+- -Wredundant-constraints
+- -XApplicativeDo
+- -XBangPatterns
+- -XConstraintKinds
+- -XDataKinds
+- -XDefaultSignatures
+- -XDeriveDataTypeable
+- -XDeriveFoldable
+- -XDeriveFunctor
+- -XDeriveGeneric
+- -XDeriveTraversable
+- -XDerivingStrategies
+- -XDerivingVia
+- -XEmptyCase
+- -XExistentialQuantification
+- -XFlexibleContexts
+- -XFlexibleInstances
+- -XFunctionalDependencies
+- -XGADTs
+- -XInstanceSigs
+- -XKindSignatures
+- -XLambdaCase
+- -XMultiParamTypeClasses
+- -XMultiWayIf
+- -XNamedFieldPuns
+- -XOverloadedStrings
+- -XPatternSynonyms
+- -XRankNTypes
+- -XScopedTypeVariables
+- -XStandaloneDeriving
+- -XTupleSections
+- -XTypeApplications
+- -XTypeFamilies
+- -XTypeFamilyDependencies
+- -XTypeOperators
+- -XViewPatterns
+- -O0
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README
+
+dependencies:
+- base >= 4.7 && < 5
+- megaparsec >= 7.0.5 && < 8
+- text >= 0.11.2
+- transformers
+- containers
+- fixplate
+library:
+  dependencies:
+      - base
+      - hashmap
+      - hashable
+      - mtl
+      - parser-combinators
+      - recursion-schemes
+      - free
+      - dlist
+      - streams
+  source-dirs: src
+executables:
+  GV:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+
+    dependencies:
+    - GV

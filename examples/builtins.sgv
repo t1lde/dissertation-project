@@ -1,0 +1,46 @@
+-- Examples using builtin types and functions
+-- The builtin functions behave as normal prefix functions
+
+-- Using the String type, and the Concat function
+let (str_hello :: String, str_world :: String) =
+    ("Hello, ", "World")
+in
+let concat1 :: String =
+    (concat str_hello str_world)
+in
+
+-- The print function will print values, and reduces to the identity function
+(print concat1);
+
+-- Similarly, we have the dispose function, which allows us to throw away values
+(dispose 1);
+
+-- The concat function has type String -@ String, so we cannot use Integers
+--(concat "Test" 1)
+
+-- We can also partially apply builtin functions
+let hello_fn :: String -@ String = concat "Hello, "
+in
+hello_fn "Tilde!" ;
+
+-- Only certain values can be disposed/printed, this prevents us from breaking session linearity
+--lambda chan :: !Int . End? . dispose chan;
+
+-- Dispose is often useful after waiting on a channel to close after offering a choice
+let offer_int_and_string :: ((?(Int + String) . End? ) -@ (String)) =
+    (lambda offer_chan :: ?(Int + String) . End? .
+           let (int_or_string :: (Int + String) , offer_chan :: (End?) ) = (recieve offer_chan) in
+           (dispose (wait offer_chan))
+
+           case (int_or_string) of {
+                inl x :: Int |-> (print x) "Int";
+                inr x :: String |-> (print x) "String"
+           })
+in
+
+let select_int :: (!(Int + String) . End!) -@ (End!) =
+    (lambda select_chan :: !(Int + String) . End! .
+           send (inl 1) select_chan)
+in
+
+offer_int_and_string (fork select_int);

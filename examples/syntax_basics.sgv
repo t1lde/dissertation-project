@@ -1,0 +1,106 @@
+-- Syncronous GV Basic Syntax Examples
+
+-- Haskell-style line comment
+
+{- Haskell-style block comment -}
+
+-- A file can contain multiple terms, separated with ;
+lambda x :: a . x ;
+
+-- Terms can be contained in brackets
+(lambda x :: a . x) ;
+
+-- () denotes the Unit Value, the only inhabitant of the singleton Unit Type
+
+() ;
+
+{-
+   Terms can be given type annotations with :: ,
+   for now, this is only used for binding terms.
+
+   In an annotation, () denotes the Unit type.
+
+-}
+
+() :: () ;
+
+-- Named types can also be given, using alphabetic characters and '
+
+lambda x :: a . x ;
+
+lambda x :: a' . x ;
+
+{-
+    Standard lambda calculus terms are included,
+    variables, abstractions and applications.
+
+    These are typed as in the Simply Typed Lambda Calculus,
+    with the additional restriction of *linearity*.
+
+    Functions are typed with x -@ y, the linear function type,
+    meaning that the bound variable has to be used *exactly once*.
+
+    All variables are bound within some scope, so there are no "free" variables.
+
+    As in Simply Typed Lambda Calculus without type inference, bound variables must be given a type.
+-}
+
+-- This will not type-check, as the free variable x is not bound anywhere
+x;
+
+-- This will not type check, as there is no type given for the bound variable.
+lambda x . x ;
+
+-- This will type-check, the left-hand side is a function of type () -@ () -@ (),
+-- and the applied value at the right is of type () -@ ()
+(lambda x :: () -@ () . x () ) (lambda x :: () . x) ;
+
+-- Tuples can be given, with the product type a * b
+lambda x :: () . (x, ());
+
+-- Multiple variables can be bound to a tuple value in let expressions
+let   (x :: (), id :: () -@ () )
+    = (()     , lambda x::() . x ) in
+    id x ;
+
+-- Values can be wrapped in inl/inr to later select branches of case expressions
+inl ();
+
+-- Case expressions can be used for branching, using the inl and inr selectors
+case inl () of {
+     inl x :: () |-> x;       -- Case branches bind a value x to a result with x |->
+     inr f :: () -@ () |-> f ()
+};
+
+-- The type of the inl/inr value must match the expected type of the variable
+-- bound in the corresponding inl/inr branch
+case inr lambda x :: () . x of {
+     inl x :: () |-> x;
+     inr f :: () -@ () |-> f ()
+};
+
+-- Linearity means that bound variables have to be used exactly once
+
+-- The variable bound in the lambda abstraction is used twice, so this wont typecheck
+lambda id :: () -@ () . id id ();
+
+-- The variable bound in the let tuple binding is used twice, so this wont typecheck
+let ( x :: () , id :: ()) =
+    ( ()      , lambda a :: () . a ) in
+    id (id x);
+ 
+-- The variable bound by the inl branch of the case expression is used twice, so this wont typecheck
+case inl lambda x :: () . x of {
+     inl id :: () -@ () |-> id id ();
+     inr y :: () |-> y
+};
+
+-- The variable y bound in the lambda abstraction is not used, so this wont typecheck
+lambda y :: () . lambda x :: () . x;
+
+-- The variable y bound in the inr branch of the case expression is not used, so this wont typecheck
+case inr () of {
+     inl z :: () * () |-> z;
+     inr y :: () |-> ()
+};
+

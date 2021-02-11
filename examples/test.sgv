@@ -1,0 +1,41 @@
+
+-- Multiple variables can be bound to a tuple value in let expressions
+let (x::(),y::()) = ((),()) in (x,y);
+
+lambda x::() . (lambda x::().x, x);
+
+
+
+-- Some tests for alpha-equivalence related behaviour
+
+lambda x :: () . (( lambda x :: () . x), (lambda x :: (). x), x);
+
+lambda y :: () . lambda x :: () -@ (). x y ;
+
+(lambda x :: () . x) ((lambda x :: () . x) () );
+
+-- This should throw a type error if alpha subst is working correctly
+case (inr ()) of
+     { inl x :: () |-> case (inr ()) of { inl x :: () |-> x ; inr x :: () |-> x }
+     ; inr x :: () |-> x
+     };
+
+lambda x :: () . lambda x :: () . x;
+
+let x :: () = () in (
+    let x :: () = () in x
+);
+
+
+let x::Int, y::Int = (1,2) in
+case (inl ()) of {
+     inl z :: () |-> (
+         (dispose z) (plus x y)
+     );
+     inr z :: () |-> (
+         (dispose z) (times x y)
+     )
+};
+
+let x :: Int, y :: Int = (3, (plus 2) 3) in
+    times x y;

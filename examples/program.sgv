@@ -1,0 +1,16 @@
+
+let consumer :: ( (?().End?) -@ (?().End?) -@ ((()*())*(()*())) ) =
+    lambda a :: (?().End?) . lambda b :: (?().End?).
+           let (va :: (), a :: End?) = recieve a in
+           let (vb :: (), b :: End?) = recieve b in
+           ((va, vb), (wait a, wait b))
+in
+
+let producer1 :: ( (!().End!) -@ End! ) =
+    lambda a :: (!().End!) . send () a
+in
+
+let producer2 :: ( (!().End!) -@ End! ) =
+    lambda a :: (!().End!) . send () a
+in
+consumer (fork producer1) (fork producer2);
